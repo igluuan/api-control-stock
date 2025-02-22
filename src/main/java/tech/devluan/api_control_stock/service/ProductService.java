@@ -31,6 +31,7 @@ public class ProductService {
     private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+
     /**
      * Cria um novo produto no sistema com base nos dados fornecidos.
      * Todos os campos do DTO são obrigatórios para a criação.
@@ -62,6 +63,7 @@ public class ProductService {
             throw new ProductProcessingException("Falha ao processar a criação do produto", e);
         }
     }
+
     /**
      * Busca todos os produtos cadastrados no sistema com suporte a paginação.
      * Retorna uma página de produtos conforme os parâmetros de página e tamanho fornecidos.
@@ -73,12 +75,14 @@ public class ProductService {
      * @throws ProductProcessingException se ocorrer um erro inesperado durante a busca ou mapeamento dos produtos
      */
     public ProductPageDTO findAllProducts(int page, int size) {
-        // Move validation before creating PageRequest
-        if (page < 0 || size <= 0) {
+        if (page < 0) {
             logger.error("Parâmetros de paginação inválidos: page={}, size={}", page, size);
-            throw new ProductInvalidRequestException("Parâmetros de página ou tamanho inválidos");
+            throw new ProductInvalidRequestException("O número da página deve ser não negativo");
         }
-
+        if (size <= 0) {
+            logger.error("Parâmetros de paginação inválidos: page={}, size={}", page, size);
+            throw new ProductInvalidRequestException("O tamanho da página deve ser maior que zero");
+        }
         try {
             PageRequest pageRequest = PageRequest.of(page, size);
             Page<Product> productPage = productRepository.findAll(pageRequest);
@@ -91,6 +95,7 @@ public class ProductService {
             throw new ProductProcessingException("Falha ao processar a busca de produtos", e);
         }
     }
+
     /**
      * Busca um produto específico pelo seu identificador único.
      *
@@ -115,6 +120,7 @@ public class ProductService {
             throw new ProductProcessingException("Falha ao processar a busca do produto", e);
         }
     }
+
     /**
      * Atualiza as informações de um produto existente no sistema.
      * O produto é identificado pelo ID e atualizado com os dados do DTO fornecido.
@@ -139,7 +145,6 @@ public class ProductService {
             Product product = productRepository.findById(productId)
                     .orElseThrow(() -> new ProductNotFoundException("Produto não encontrado com ID: " + productId));
 
-            // Move validation outside of general exception handling
             updateProductFields(product, productCreationDTO);
 
             try {
@@ -155,6 +160,7 @@ public class ProductService {
             throw new ProductProcessingException("Falha ao processar a atualização do produto", e);
         }
     }
+
     /**
      * Desativa um produto existente no sistema, alterando sua situação para inativo.
      * O produto não é removido fisicamente do banco de dados, apenas marcado como inativo.
@@ -182,6 +188,7 @@ public class ProductService {
             throw new ProductProcessingException("Falha ao processar a desativação do produto", e);
         }
     }
+
     // Atualiza os campos do produto
     private void updateProductFields(Product product, ProductCreationDTO dto) {
         if (dto.name() != null) {

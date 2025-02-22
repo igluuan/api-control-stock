@@ -90,7 +90,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Trata exceções genéricas não esperadas.
+     * Trata exceções genéricas não esperadas, incluindo erros do Swagger.
      *
      * @param ex Exceção genérica capturada como fallback
      * @return Resposta HTTP 500 com uma mensagem genérica
@@ -100,7 +100,7 @@ public class GlobalExceptionHandler {
         logger.error("Erro inesperado: {}", ex.getMessage(), ex);
         ErrorResponse error = new ErrorResponse("INTERNAL_ERROR",
                 "Ocorreu um erro interno no servidor. Por favor, tente novamente mais tarde.",
-                List.of());
+                List.of(ex.getClass().getSimpleName() + ": " + ex.getMessage()));
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 }

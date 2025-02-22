@@ -111,14 +111,13 @@ public class ProductServiceTest {
 
     @Test
     void findAllProducts_invalidPagination_throwsException() {
-        // Don't set up mock behavior that would trigger IllegalArgumentException
+        // Removido o stubbing desnecessário de productRepository.findAll
         ProductInvalidRequestException exception = assertThrows(ProductInvalidRequestException.class,
                 () -> productService.findAllProducts(-1, 10));
-
-        assertEquals("Parâmetros de página ou tamanho inválidos", exception.getMessage());
-        // Since the validation fails before repository is called, verify it was never called
+        assertEquals("O número da página deve ser não negativo", exception.getMessage());
         verify(productRepository, never()).findAll(any(PageRequest.class));
     }
+
     @Test
     void findById_success() {
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
@@ -241,6 +240,7 @@ public class ProductServiceTest {
     void updateProduct_negativePrice_throwsException() {
         ProductCreationDTO updateDTO = new ProductCreationDTO(null, 20, BigDecimal.valueOf(-99.90));
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+
         ProductInvalidDataException exception = assertThrows(ProductInvalidDataException.class,
                 () -> productService.updateProduct(1L, updateDTO));
         assertEquals("O preço deve ser não negativo", exception.getMessage());
