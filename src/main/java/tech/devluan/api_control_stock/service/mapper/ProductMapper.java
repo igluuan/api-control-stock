@@ -2,6 +2,7 @@ package tech.devluan.api_control_stock.service.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.springframework.data.domain.Page;
 import tech.devluan.api_control_stock.model.Product;
 import tech.devluan.api_control_stock.model.dto.ProductCreationDTO;
 import tech.devluan.api_control_stock.model.dto.ProductResponseDTO;
@@ -23,4 +24,9 @@ public interface ProductMapper {
     @Mapping(source ="productPrice", target = "price")
     @Mapping(source ="updatedAt", target = "lastUpdate")
     ProductResponseDTO toResponseDTO(Product product);
+
+    default Page<ProductResponseDTO> toPageDTO(Page<Product> productPage) {
+        return productPage.map(this::toResponseDTO);
+    }
 }
+
